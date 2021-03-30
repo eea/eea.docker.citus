@@ -1,0 +1,70 @@
+version: '2'
+
+volumes:
+  citus_healthcheck_volume:
+#    external: true
+#    driver: rancher-nfs
+  citus_data_test:
+
+services:
+  manager:
+    image: citusdata/membership-manager:0.3.0
+    #privileged: true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - citus_healthcheck_volume:/healthcheck
+    depends_on: [ master ]
+    labels:
+      io.rancher.scheduler.affinity:host_label: citus-master=yes
+      com.docker.compose.project: citus
+      #environment: *AUTH
+    environment:
+      PGPASSWORD: changeme
+      PGUSER: user
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_PASSWORD: changeme
+      POSTGRES_USER: postgres
+
+  master:
+    image: sdi-citus:latest
+    #privileged: true
+    user: root
+    ports: 
+      - 5432:5432
+    labels: 
+      com.citusdata.role: Master
+      io.rancher.scheduler.affinity:host_label: citus-master=yes
+      #com.docker.compose.project: citus
+    volumes:
+      #- ./scripts:/docker-entrypoint-initdb.d 
+      #- citus_data_test:/var/lib/postgresql/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment: 
+    #&AUTH
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: changeme
+      PGUSER: "user"
+      PGPASSWORD: "changeme"
+      POSTGRES_HOST_AUTH_METHOD: "trust"
+
+  worker:
+    image: sdi-citus:latest
+    labels: 
+      com.citusdata.role: Worker
+      io.rancher.scheduler.affinity:host_label: citus=yes
+      #com.docker.compose.project: citus
+    depends_on: [ manager ]
+    #environment: 
+    #*AUTH
+    environment:
+    #&AUTH
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "changeme"
+      PGUSER: "user"
+      PGPASSWORD: "changeme"
+      POSTGRES_HOST_AUTH_METHOD: "trust"
+
+    command: "/wait-for-manager.sh"
+    volumes: 
+      - citus_healthcheck_volume:/healthcheck
+      - /var/run/docker.sock:/var/run/docker.sock
