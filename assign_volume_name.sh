@@ -7,6 +7,7 @@ if [ -z ${workernumber} ]; then
    if [ -z ${workernumber} ]; then
      workernumber=master
    fi
+   chown -R postgres:postgres /var/lib/postgres/data
    echo export PGDATA=/var/lib/postgresql/data/$workernumber > /pgdata.source
    echo export workernumber=$workernumber >> /pgdata.source
    rm -f /etc/sudoers.d/postgres.conf

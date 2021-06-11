@@ -19,6 +19,7 @@ services:
       com.docker.compose.project: citus
       #environment: *AUTH
     environment:
+      POSTGRES_DB: changeme     
       PGPASSWORD: changeme
       PGUSER: user
       POSTGRES_HOST_AUTH_METHOD: trust
