@@ -14,4 +14,5 @@ RUN echo 'ALL  ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers.d/postgres.conf && \
     echo 'Defaults:ALL !requiretty' >> /etc/sudoers.d/postgres.conf
 
 COPY assign_volume_name.sh /
-COPY scripts/002-installpostgis.sh /docker-entrypoint-initdb.d/002-installpostgis.sh
+#COPY scripts/002-installpostgis.sh /docker-entrypoint-initdb.d/002-installpostgis.sh
+COPY scripts/002-installpostgis.sql /docker-entrypoint-initdb.d/
