@@ -1,5 +1,5 @@
-FROM citusdata/citus:latest
-#10.0.3-pg13.2-1 at the time of first commit.
+FROM citusdata/citus:10.1.1
+#10.1.1-pg13.3 at the time of first commit.
 
 RUN apt-get -y update && \
     apt-get -y install curl \
