@@ -1,11 +1,10 @@
-FROM citusdata/citus:10.1.1
-#10.1.1-pg13.3 at the time of first commit.
+FROM citusdata/citus:10.2.1-pg14
 
 RUN apt-get -y update && \
     apt-get -y install curl \
     jq \
-    postgresql-13-postgis-3 \
-    postgresql-13-postgis-3-scripts \
+    postgresql-14-postgis-3 \
+    postgresql-14-postgis-3-scripts \
     sudo
 
 RUN sed "s#if ! _is_sourced; then#/assign_volume_name.sh\nsource /pgdata.source\nif ! _is_sourced; then#g" -i /usr/local/bin/docker-entrypoint.sh
