@@ -27,7 +27,7 @@ services:
       POSTGRES_USER: postgres
 
   master:
-    image: sdi-citus:latest
+    image: eeacms/sdi-citus:latest
     #privileged: true
     user: root
     ports: 
@@ -38,7 +38,7 @@ services:
       #com.docker.compose.project: citus
     volumes:
       #- ./scripts:/docker-entrypoint-initdb.d 
-      #- citus_data_test:/var/lib/postgresql/data
+      - citus_data_test:/var/lib/postgresql/data
       - /var/run/docker.sock:/var/run/docker.sock
     environment: 
     #&AUTH
@@ -49,7 +49,7 @@ services:
       POSTGRES_HOST_AUTH_METHOD: "trust"
 
   worker:
-    image: sdi-citus:latest
+    image: eeacms/sdi-citus:latest
     labels: 
       com.citusdata.role: Worker
       io.rancher.scheduler.affinity:host_label: citus=yes
@@ -69,3 +69,5 @@ services:
     volumes: 
       - citus_healthcheck_volume:/healthcheck
       - /var/run/docker.sock:/var/run/docker.sock
+      - citus_data_test:/var/lib/postgresql/data
+
