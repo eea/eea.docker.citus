@@ -1,4 +1,4 @@
-FROM citusdata/citus:10.2.2
+FROM citusdata/citus:10.2.3
 
 RUN apt-get -y update && \
     apt-get -y install curl \
