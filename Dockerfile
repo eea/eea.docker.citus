@@ -5,7 +5,8 @@ RUN apt-get -y update && \
     jq \
     postgresql-14-postgis-3 \
     postgresql-14-postgis-3-scripts \
-    sudo
+    libldap-common \
+    sudo 
 
 RUN sed "s#if ! _is_sourced; then#/assign_volume_name.sh\nsource /pgdata.source\nif ! _is_sourced; then#g" -i /usr/local/bin/docker-entrypoint.sh
 
