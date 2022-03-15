@@ -8,18 +8,22 @@ volumes:
 
 services:
   manager:
-    image: citusdata/membership-manager:0.3.0
+    image: eeacms/sdi-cron
+    #citusdata/membership-manager:0.3.0
     #privileged: true
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - citus_healthcheck_volume:/healthcheck
+      - ./scripts:/opt
     depends_on: [ master ]
     labels:
       io.rancher.scheduler.affinity:host_label: citus-master=yes
       com.docker.compose.project: citus
       #environment: *AUTH
     environment:
-      POSTGRES_DB: changeme     
+      CRONTAB: |-
+        */1 * * * * /opt/manage_worker.sh eeadockercitus_worker_1 >> /tmp/log.txt
+      POSTGRES_DB: postgres
       PGPASSWORD: changeme
       PGUSER: user
       POSTGRES_HOST_AUTH_METHOD: trust
@@ -29,45 +33,54 @@ services:
   master:
     image: eeacms/sdi-citus:latest
     #privileged: true
-    user: root
+#    user: root
     ports: 
       - 5432:5432
     labels: 
-      com.citusdata.role: Master
+      #com.citusdata.role: Master
       io.rancher.scheduler.affinity:host_label: citus-master=yes
       #com.docker.compose.project: citus
-    volumes:
+    #volumes:
       #- ./scripts:/docker-entrypoint-initdb.d 
-      - citus_data_test:/var/lib/postgresql/data
-      - /var/run/docker.sock:/var/run/docker.sock
+      #- citus_data_test:/var/lib/postgresql/data
+      #- /var/run/docker.sock:/var/run/docker.sock
     environment: 
     #&AUTH
-      POSTGRES_USER: "postgres"
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: changeme
-      PGUSER: "user"
-      PGPASSWORD: "changeme"
+      POSTGRES_DB: postgres
+      PGUSER: user
+      PGPASSWORD: changeme
       POSTGRES_HOST_AUTH_METHOD: "trust"
 
   worker:
-    image: eeacms/sdi-citus:latest
+    image: eeacms/sdi-citus:10.2.3-pg14
+    #latest
     labels: 
-      com.citusdata.role: Worker
+      #com.citusdata.role: Worker
       io.rancher.scheduler.affinity:host_label: citus=yes
       #com.docker.compose.project: citus
-    depends_on: [ manager ]
+      #    depends_on: [ manager ]
     #environment: 
     #*AUTH
     environment:
     #&AUTH
-      POSTGRES_USER: "postgres"
-      POSTGRES_PASSWORD: "changeme"
-      PGUSER: "user"
-      PGPASSWORD: "changeme"
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: changeme
+      POSTGRES_DB: postgres
+      PGUSER: user
+      PGPASSWORD: changeme
       POSTGRES_HOST_AUTH_METHOD: "trust"
 
-    command: "/wait-for-manager.sh"
+    #command: "/wait-for-manager.sh"
     volumes: 
-      - citus_healthcheck_volume:/healthcheck
+    # - citus_healthcheck_volume:/healthcheck
       - /var/run/docker.sock:/var/run/docker.sock
-      - citus_data_test:/var/lib/postgresql/data
+      #- citus_data_test:/var/lib/postgresql/data
+    labels:
+      io.rancher.scheduler.affinity:host_label: backend=yes
+      io.rancher.sidekicks: sysctl-1
+      io.rancher.container.pull_image: always
+
+
 
